@@ -42,7 +42,7 @@ const ReportPage = () => {
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({ video_path: 'interview'}),
+              body: JSON.stringify({ reportType: context_chosen}),
             });
 
             if (!response.ok) {
