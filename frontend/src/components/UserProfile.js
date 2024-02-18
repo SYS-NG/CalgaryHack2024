@@ -3,6 +3,7 @@ import { auth } from '../firebase-config';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { db } from '../firebase-config';
 import { doc, getDoc } from "firebase/firestore"; 
+import LoadingIndicator from './LoadingIndicator';
 
 const userProfileStyle = {
   display: 'flex',
@@ -60,7 +61,7 @@ function UserProfile() {
   }, []);
 
   if (!user) {
-    return <div style={userProfileStyle}>No user is currently signed in.</div>;
+    // return <div style={userProfileStyle}>No user is currently signed in.</div>;
   }
 
   return (
