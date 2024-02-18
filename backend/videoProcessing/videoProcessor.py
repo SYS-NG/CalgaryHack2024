@@ -11,8 +11,6 @@ from collections import Counter
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
 VERBOSE = False
 
 CENTER = "C"
@@ -34,7 +32,7 @@ class VideoProcessor():
         self.video_path = video_path
         self.cap = cv2.VideoCapture(video_path)
         self.face_detector      = dlib.get_frontal_face_detector()
-        self.landmark_predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+        self.landmark_predictor = dlib.shape_predictor("./videoProcessing/shape_predictor_68_face_landmarks.dat")
 
         self.fps = 0
         self.total_frames = 0
