@@ -19,28 +19,31 @@ export default function VideoRecorder({video_context}) {
       a.click();
       document.body.removeChild(a);
 
-      setTimeout(3000);
+      const timer = setTimeout(async () => {
+        // Call backend
+        const response = await fetch('http://127.0.0.1:5000/videoParser', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+        });
 
-      // Call backend
-      const response = await fetch('http://127.0.0.1:5000/videoParser', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-      });
-  
-      const data = await response.json();
-  
-      if (response.ok) {
-        console.log('Success:', data);
-        // Handle success
-      } else {
-        console.error('Error:', data.error);
-        // Handle error
-      }
+        const data = await response.json();
 
-      // Redirect to reportpage with context chosen for eval
-      navigate(`/report?context=${selectedOption}`);
+        console.log('This will be logged after 3 second');
+        if (response.ok) {
+            console.log('Success:', data);
+            // Handle success
+            } else {
+            console.error('Error:', data.error);
+            // Handle error
+            }
+
+            // Redirect to reportpage with context chosen for eval
+            navigate(`/report?context=${selectedOption}`);
+
+      }, 3000);
+      
     }
   };
 
