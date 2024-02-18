@@ -3,9 +3,11 @@ import json
 import math
 import openai
 from flask import Blueprint, request, jsonify
+from flask_cors import CORS
 
 # Flask Blueprint
 reportGenerator = Blueprint('reportGenerator', __name__)
+CORS(reportGenerator)
 
 openai.api_key = os.environ.get('OPENAI_API_KEY')
 client = openai.OpenAI()
@@ -407,6 +409,10 @@ def generateJsonReport(metrics: dict, reportType: str):
     report.generate()
 
     return json.dumps(report.scores, indent=4, sort_keys=True)
+
+@reportGenerator.route('/test', methods=['GET'])
+def test():
+    return jsonify({'message': 'Report Generator is working!'})
 
 @reportGenerator.route('/generateReport', methods=['POST'])
 def generateReport():
