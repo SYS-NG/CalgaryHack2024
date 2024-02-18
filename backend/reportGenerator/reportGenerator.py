@@ -446,8 +446,8 @@ class DateReport(Report):
 # Map to store the report type and the corresponding class
 reportTypeMap = {
     "interview": InterviewReport,
-    "evaluation": EvaluationReport,
-    "date": DateReport,
+    "preliminary evaluation": EvaluationReport,
+    "dating": DateReport,
 }
 
 def generateJsonReport(metrics: dict, reportType: str):
