@@ -354,7 +354,8 @@ def process_expressions(expressions):
     }
     expression_count = Counter(expressions)
     total_expressions = len(expressions)
-    expression_fractions = {expression: count / total_expressions for expression, count in expression_count.items()}
+    for expression, count in expression_count.items():
+        expression_fractions[expression] = count / total_expressions
     return expression_fractions
 
 def localProcessVideo(video_path):
