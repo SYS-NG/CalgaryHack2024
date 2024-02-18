@@ -415,5 +415,5 @@ def processVideo():
 if __name__ == "__main__":
     print("Processing video")
     # localProcessVideo('C:\\Users\\szeyu\\Documents\\GitHub\\CalgaryHack2024\\data\\test.mp4')
-    localProcessVideo(1)
+    _ = localProcessVideo(1)
     print("Video processed")
