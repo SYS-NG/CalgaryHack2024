@@ -33,12 +33,12 @@ const ReportPage = () => {
         const handleReport = async () => {
           try {
             console.log('Fetching report...');
-            const response = await fetch('http://127.0.0.1:5000/videoProcessor/processVideo', {
+            const response = await fetch('http://127.0.0.1:5000/reportGenerator/generateReport', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({ video_path: 'C:\\Users\\szeyu\\Documents\\GitHub\\CalgaryHack2024\\data\\test.mp4'}),
+              body: JSON.stringify({ video_path: 'interview'}),
             });
 
             if (!response.ok) {
