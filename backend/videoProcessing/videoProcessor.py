@@ -254,7 +254,7 @@ class VideoProcessor():
                 #=========================
                 # Emotion detection
                 #=========================
-                analyzed_face = DeepFace.analyze(frame, actions=["emotion"])
+                analyzed_face = DeepFace.analyze(frame, actions=["emotion"], enforce_detection=False)
                 emotion_label = analyzed_face[0]["dominant_emotion"]
 
                 # Add box and label to the frame
