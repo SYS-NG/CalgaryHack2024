@@ -5,7 +5,9 @@ from pydub import AudioSegment, effects
 import noisereduce as nr
 import matplotlib.pyplot as plt
 import soundfile as sf
+import os
 
+os.chdir(os.path.dirname(__file__))
 
 def get_model():
     # Load first model
