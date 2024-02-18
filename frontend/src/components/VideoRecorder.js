@@ -13,6 +13,8 @@ export default function VideoRecorder() {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+
+      
     }
   };
 
