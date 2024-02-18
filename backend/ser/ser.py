@@ -33,6 +33,7 @@ def preprocess(file_path):
     rawsound = AudioSegment.from_file(file_path, duration = None) 
     normalizedsound = effects.normalize(rawsound, headroom = 5.0) 
     normal_x = np.array(normalizedsound.get_array_of_samples(), dtype = 'float32')
+    normal_x = np.nan_to_num(normal_x)
     xt, index = librosa.effects.trim(normal_x, top_db=30)
 
     try:
