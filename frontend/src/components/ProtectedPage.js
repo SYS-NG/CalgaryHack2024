@@ -67,11 +67,11 @@ const ProtectedPage = () => {
     return (
     <div style={protectedStyle}>
         <VideoRecorder/>
-        <h1>Protected Page</h1>
+        {/* <h1>Protected Page</h1>
         <p>Hi {user.name}</p>
         <p>Congratulations! You've accessed the protected content.</p>
         <button onClick={handleLogout} style={buttonStyle}>Logout</button>
-        <button onClick={goToUserProfile}>View User Profile</button> {/* Button to redirect */}
+        <button onClick={goToUserProfile}>View User Profile</button> Button to redirect */}
     </div>
     );
 }
