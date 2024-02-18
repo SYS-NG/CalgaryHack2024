@@ -3,6 +3,7 @@ import { auth } from '../firebase-config';
 import LoadingIndicator from './LoadingIndicator';
 import { db } from '../firebase-config';
 import { doc, getDoc } from "firebase/firestore"; 
+import { useLocation } from 'react-router-dom';
 
 const protectedStyle = {
   display: 'flex',
