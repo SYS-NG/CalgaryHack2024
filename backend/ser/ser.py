@@ -5,12 +5,12 @@ from pydub import AudioSegment, effects
 import noisereduce as nr
 import matplotlib.pyplot as plt
 import soundfile as sf
-
+import os
 
 def get_model():
     # Load first model
-    saved_model_path = './ser_model.json'
-    saved_weights_path = './ser_model_weights.h5'
+    saved_model_path = './ser/ser_model.json'
+    saved_weights_path = './ser/ser_model_weights.h5'
 
     with open(saved_model_path , 'r') as json_file:
         json_savedModel = json_file.read()
@@ -28,7 +28,6 @@ def preprocess(file_path):
     total_length = 173056
     frame_length = 2048
     hop_length = 512
-
 
     _, sr = librosa.load(path = file_path, sr = None)
     rawsound = AudioSegment.from_file(file_path, duration = None) 
@@ -57,7 +56,7 @@ def preprocess(file_path):
     return X_3D
 
 def main():
-    FILE_PATH = '../result.wav'
+    FILE_PATH = './result.wav'
     SAMPLE_RATE = 24414  # Same as RATE in the original script
     CHUNK_DURATION = 1  # Duration of chunks to analyze (in seconds)
     emo_list = ["neutral", "calm", "happy", "sad", "angry", "fearful", "disgust", "surprised"]

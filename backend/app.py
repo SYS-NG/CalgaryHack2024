@@ -1,9 +1,9 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
 from reportGenerator.reportGenerator import reportGenerator
 from videoProcessing.videoProcessor import videoProcessor
 import os
 import subprocess
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
@@ -17,6 +17,13 @@ def video_parser():
     home = os.path.expanduser('~')
     downloads_path = os.path.join(home, 'Downloads')
     webm_file_path = downloads_path + "/" + "recorded-video.webm"
+
+
+    if os.name == 'nt':  # 'nt' stands for Windows
+        # Modify file paths for Windows
+        webm_file_path = '/mnt/c/Users/' + os.getlogin() + '/Downloads/recorded-video.webm'
+
+    print(webm_file_path)
 
     if not webm_file_path or not os.path.exists(webm_file_path):
         return jsonify({"error": "Invalid or missing file path"}), 400

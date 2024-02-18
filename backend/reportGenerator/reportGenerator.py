@@ -1,9 +1,16 @@
 import os
+import sys
 import json
 import math
 import openai
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
+
+sys.path.append('../videoProcessing')
+sys.path.append('../ser')
+
+from videoProcessing.videoProcessor import localProcessVideo
+from ser.ser import main as localProcessAudio
 
 # Flask Blueprint
 reportGenerator = Blueprint('reportGenerator', __name__)
@@ -23,6 +30,9 @@ class Report:
         #     "expression_fractions": expression_fractions,
         #     "prominent_expression": prominent_expression,
         # }
+
+        # Sample tone_probabilities
+        # tone_probabilities = [ NEUTRAL, CALM, HAPPY, SAD, ANGRY, FEARFUL, DISGUSTED, SURPRISED ]
 
         self.score   = 0
         self.metrics = metrics
@@ -69,9 +79,9 @@ class Report:
             The metrics are based on the user's blinks per minute, gaze fractions, prominent gaze, expression fractions, and prominent expression.
             Attentiveness is based on how long user's gaze is centered.
             Confidence is based on the user's blink rate and gaze fractions. Blinking too much or too little can affect confidence. Looking around too much also indicates low confidence.
-            Empathy is based on the user's expression fractions. Positive expressions like happiness, surprise, and sadness are considered connecting expressions, while negative expressions like anger, disgust, and fear are considered disconnecting expressions.
-            Socialability is based on the user's gaze fractions and expression fractions. A high center gaze and positive expressions indicate high socialability.
-            Expressiveness is based on the user's expression fractions. A high fraction of neutral expressions indicates low expressiveness.
+            Empathy is based on the user's expression fractions. Positive expressions like happiness, surprise, and sadness are considered connecting expressions, while negative expressions like anger, disgust, and fear are considered disconnecting expressions. Tone is also very important. A high fraction of connecting expressions and tones indicates high empathy.
+            Socialability is based on the user's gaze fractions and expression fractions. A high center gaze and positive expressions indicate high socialability. Positive Speech tones also indicate high socialability.
+            Expressiveness is based on the user's expression fractions. A high fraction of neutral expressions indicates low expressiveness. Tones are also heavily considered. A high fraction of expressive tones indicates high expressiveness.
              
             Feedback should be contructive and helpful. Especially if their scores are not ideal. Also take into account the provided metrics.
             Do NOT contradict in the feedbacks. Keep consistent critisim and praise.
@@ -178,8 +188,25 @@ class Report:
             blink_score = 0.5 ** (10 - blinks_per_minute) 
 
         #================================================================================================
-        # Empathy score is blink score and expression score
-        score = int((blink_score * 0.3 + expression_score * 0.7) * 100)
+        # consider SER probabilities
+        tone_probabilities = self.metrics["tone_probabilities"]
+        # 0: neutral, 1: calm, 2: happy, 3: sad, 4: angry, 5: fearful, 6: disgust, 7: surprised
+        connecting_tones = tone_probabilities[2] + tone_probabilities[1] + tone_probabilities[3] + tone_probabilities[7]
+        disconnecting_tones = tone_probabilities[4] + tone_probabilities[5] + tone_probabilities[6]
+        neutral_tones = tone_probabilities[0]
+
+        ratio = connecting_tones / disconnecting_tones
+
+        # Define the point of sharp drop and the steepness of the drop
+        drop_point = 0.6
+        steepness = 3  # Increase this for a sharper drop
+        
+        # Calculate the score using the logistic function
+        tone_score = 1 / (1 + math.exp(-steepness * (ratio - drop_point)))
+
+        #================================================================================================
+        # Empathy score is blink score and expression score and tone score
+        score = int((blink_score * 0.2 + expression_score * 0.4 + tone_score *0.4) * 100)
 
         # Store the score in the scores dictionary
         self.scores["Empathy_Score"] = score
@@ -203,7 +230,7 @@ class Report:
 
         # Define weights for different emotions
         weights = {
-            'happy': 1.5,
+            'happy': 1.7,
             'neutral': 1.0,
             'surprise': 1.2,
         }
@@ -215,8 +242,16 @@ class Report:
         expression_score = positive_score / sum(weights.values())
 
         #================================================================================================
-        # Socialability score is blink score and expression score
-        score = int((blink_score * 0.2 + expression_score * 0.8) * 100)
+        # SER probabilities
+        tone_probabilities = self.metrics["tone_probabilities"]
+        # 0: neutral, 1: calm, 2: happy, 3: sad, 4: angry, 5: fearful, 6: disgust, 7: surprised
+        positive_tones_weight = [1, 2, 3, 0, 0, 0, 0, 1.2]
+        positive_tones = sum(tone_probabilities[i] * positive_tones_weight[i] for i in range(8))
+        tone_score = positive_tones / sum(positive_tones_weight)
+
+        #================================================================================================
+        # Socialability score is blink score and expression score and tone score
+        score = int((blink_score * 0.1 + expression_score * 0.4 + tone_score * 0.5) * 100)
 
         # Store the score in the scores dictionary
         self.scores["Socialability_Score"] = score
@@ -232,8 +267,18 @@ class Report:
         expression_score = 1 / (1 + math.exp(-ratio))
 
         #================================================================================================
-        # Expressiveness score is expression score
-        score = 50 + int(expression_score * 50)
+        # Tone probabilities
+        tone_probabilities = self.metrics["tone_probabilities"]
+        # 0: neutral, 1: calm, 2: happy, 3: sad, 4: angry, 5: fearful, 6: disgust, 7: surprised
+        neutral_expression = tone_probabilities[0]
+        all_other_expression = 1 - neutral_expression
+
+        ratio = all_other_expression / neutral_expression
+        tone_score = 1 / (1 + math.exp(-ratio))
+
+        #================================================================================================
+        # Expressiveness score is expression score and tone score
+        score = 40 + int(expression_score * 30) + int(tone_score * 30)
 
         # Store the score in the scores dictionary
         self.scores["Expressiveness_Score"] = score
@@ -308,9 +353,12 @@ class Report:
             gaze_fractions = {self.metrics["gaze_fractions"]}, ideal_center_gaze = 0.7,
             expression_fractions = {self.metrics["expression_fractions"]},
             their most prominent expression = {self.metrics["prominent_expression"]}.
+            Their most prominent tone = {self.metrics["tone_probabilities"].index(max(self.metrics["tone_probabilities"]))}.
+            Their tone probabilities = {self.metrics["tone_probabilities"]}.
 
             Note the difference between the scores and the ideal scores. Use the difference to generate feedback.
             Score of 100 does NOT mean better. If it is fair from ideal score, it still needs critisism.
+            At least make one comment on their tone and expression.
 
             Do not reveal any numbers to the user. Just use the metrics to generate feedback.
         """
@@ -404,6 +452,11 @@ reportTypeMap = {
 
 def generateJsonReport(metrics: dict, reportType: str):
 
+    video_path  = "./result.mp4"
+    metrics     = localProcessVideo(video_path)
+    aud_metrics = localProcessAudio()
+    metrics["tone_probabilities"]   = aud_metrics
+
     report = reportTypeMap[reportType](metrics)
     report.getScores()
     report.generate()
@@ -417,7 +470,11 @@ def test():
 @reportGenerator.route('/generateReport', methods=['POST'])
 def generateReport():
 
-    metrics    = request.json['metrics']
+    video_path  = "./result.mp4"
+    metrics     = localProcessVideo(video_path)
+    aud_metrics = localProcessAudio()
+    metrics["tone_probabilities"]   = aud_metrics
+     
     reportType = request.json['reportType']
 
     report = reportTypeMap[reportType](metrics)
@@ -445,6 +502,17 @@ if __name__ == "__main__":
             "disgust": 0.0
         },
         "prominent_expression": "happy",
+        # mean probability of each tone (8) adds up to 1
+        "tone_probabilities": [
+            0.1,  # neutral
+            0.1,  # calm
+            0.1,  # happy
+            0.1,  # sad 
+            0.1,  # angry
+            0.1,  # fearful
+            0.1,  # disgust
+            0.1   # surprised
+        ]
     }
 
     resStr = generateJsonReport(metrics, "interview")

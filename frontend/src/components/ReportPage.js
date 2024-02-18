@@ -3,7 +3,6 @@ import { auth } from '../firebase-config';
 import LoadingIndicator from './LoadingIndicator';
 import { db } from '../firebase-config';
 import { doc, getDoc } from "firebase/firestore"; 
-import { useLocation } from 'react-router-dom';
 
 const protectedStyle = {
   display: 'flex',
@@ -34,8 +33,28 @@ const ReportPage = () => {
     let context_chosen = queryParams.get('context');
 
     useEffect(() => {
-      console.log("context")
-      console.log(context_chosen)
+        const handleReport = async () => {
+          try {
+            console.log('Fetching report...');
+            const response = await fetch('http://127.0.0.1:5000/reportGenerator/generateReport', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ video_path: 'interview'}),
+            });
+
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+
+            const result = await response.json();
+            setData(result);
+          } catch (error) {
+            console.error('There was an error!', error);
+          }
+        };
+
         const fetchUserData = async () => {
           const user = auth.currentUser;
           if (user) {
@@ -49,31 +68,11 @@ const ReportPage = () => {
             }
           }
         };
-    
+
+        handleReport();
         fetchUserData();
     }, []);
 
-    const handleReport = async () => {
-      try {
-        console.log('Fetching report...');
-        const response = await fetch('http://127.0.0.1:5000/videoProcessor/processVideo', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ video_path: 'C:\\Users\\szeyu\\Documents\\GitHub\\CalgaryHack2024\\data\\test.mp4'}),
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const result = await response.json();
-        setData(result);
-      } catch (error) {
-        console.error('There was an error!', error);
-      }
-    };
 
     if (!user) {
         return <LoadingIndicator />;
@@ -84,7 +83,6 @@ const ReportPage = () => {
         <h1>Protected Page</h1>
         <p>Hi {user.name}</p>
         <p>Here is your interaction stats!</p>
-        <button onClick={handleReport} style={buttonStyle}>Fetch Report</button>
         <div>
         {data ? (
           <div>
