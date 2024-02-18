@@ -1,9 +1,13 @@
 import os
+import sys
 import json
 import math
 import openai
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
+from ..videoProcessing.videoProcessor import localProcessVideo
+
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # Flask Blueprint
 reportGenerator = Blueprint('reportGenerator', __name__)
@@ -417,7 +421,11 @@ def test():
 @reportGenerator.route('/generateReport', methods=['POST'])
 def generateReport():
 
-    metrics    = request.json['metrics']
+    video_path  = "./result.mp4"
+    metrics = localProcessVideo(video_path)
+    # aud_metrics = localProcessAudio(video_path)
+    # metrics.update(aud_metrics)
+     
     reportType = request.json['reportType']
 
     report = reportTypeMap[reportType](metrics)
@@ -445,6 +453,17 @@ if __name__ == "__main__":
             "disgust": 0.0
         },
         "prominent_expression": "happy",
+        # mean probability of each tone (8) adds up to 1
+        "tone_probabilities": [
+            0.1,  # neutral
+            0.1,  # calm
+            0.1,  # happy
+            0.1,  # sad 
+            0.1,  # angry
+            0.1,  # fearful
+            0.1,  # disgust
+            0.1   # surprised
+        ]
     }
 
     resStr = generateJsonReport(metrics, "interview")
