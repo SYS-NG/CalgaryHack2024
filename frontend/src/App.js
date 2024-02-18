@@ -9,6 +9,7 @@ import LoadingIndicator from './components/LoadingIndicator';
 import { auth } from './firebase-config';
 import './App.css';
 import Signout from './components/Signout';
+import ReportPage from './components/ReportPage';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -40,6 +41,7 @@ if (loading) {
                 <Route path="/protected" element={isAuthenticated ? <ProtectedPage /> : <Navigate replace to="/login" />} />
                 <Route path="/user-profile" element={isAuthenticated ? <UserProfile /> : <Navigate replace to="/login" />} />
                 <Route path="/logout" element={<Signout/>} />
+                <Route path="/report" element={isAuthenticated ? <ReportPage/> : <Navigate replace to="/login" />} />
             </Routes>
         </Router>
     );

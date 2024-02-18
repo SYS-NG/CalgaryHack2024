@@ -1,3 +1,4 @@
+import os
 import cv2
 import dlib
 import time
@@ -8,6 +9,9 @@ from deepface import DeepFace
 from scipy.signal import find_peaks
 from collections import Counter
 from flask import Blueprint, request, jsonify
+from flask_cors import CORS
+
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 VERBOSE = False
 
@@ -15,12 +19,20 @@ CENTER = "C"
 LEFT   = "L"
 RIGHT  = "R"
 
+# Create a blueprint for the videoProcessor
 videoProcessor = Blueprint('VideoProcessor', __name__)
+CORS(videoProcessor)
 
 class VideoProcessor():
     def __init__(self, video_path):
+
+        if os.path.exists(video_path):
+            pass
+        else:
+            print(f"Error: Video file '{video_path}' not found.")
+
         self.video_path = video_path
-        self.cap = cv2.VideoCapture(self.video_path)
+        self.cap = cv2.VideoCapture(video_path)
         self.face_detector      = dlib.get_frontal_face_detector()
         self.landmark_predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
@@ -47,6 +59,8 @@ class VideoProcessor():
             self.total_frames = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
             self.timeframe = self.total_frames / self.fps
 
+            print(f"Video FPS: {self.fps}, Total frames: {self.total_frames}, Timeframe: {self.timeframe} seconds.")
+
         if self.mode == "camera":
             # Setup showing the video size
             cv2.namedWindow("Eye", cv2.WINDOW_NORMAL)
@@ -67,7 +81,7 @@ class VideoProcessor():
             "fps": self.fps,
             "total_frames": self.total_frames,
         }
-
+    
     def blink_detection(self, landmarks):
 
         # get the pixels corresponding to the top and bottom of the eye
@@ -190,8 +204,20 @@ class VideoProcessor():
         binary_roi    = None
 
         start_time = time.time()
+        skip_n_frames  = 2
+        skipped_frames = 0
+        num_frames     = 0
+
         while True:
             ret, frame = self.cap.read()
+            if skipped_frames < skip_n_frames:
+                skipped_frames += 1
+                continue
+
+            print(num_frames)
+            num_frames += 1
+            skipped_frames = 0
+
             if ret is False:
                 break
             
@@ -228,7 +254,7 @@ class VideoProcessor():
                 #=========================
                 # Emotion detection
                 #=========================
-                analyzed_face = DeepFace.analyze(frame, actions=["emotion"])
+                analyzed_face = DeepFace.analyze(frame, actions=["emotion"], enforce_detection=False)
                 emotion_label = analyzed_face[0]["dominant_emotion"]
 
                 # Add box and label to the frame
@@ -304,7 +330,7 @@ def process_eye_width_height_ratios(eye_width_height_ratios, timeframe):
     num_blinks = len(peaks)
 
     # Only show plot if specified
-    if True:
+    if VERBOSE:
         # plot the extracted metrics eye_width_height_ratios
         plt.plot(eye_width_height_ratios)
         # plot the peaks overlaid on the eye_width_height_ratios
@@ -333,7 +359,7 @@ def process_expressions(expressions):
     expression_fractions = {expression: count / total_expressions for expression, count in expression_count.items()}
     return expression_fractions
 
-def processVideo(video_path):
+def localProcessVideo(video_path):
     vid_processor     = VideoProcessor(video_path)
     extracted_metrics = vid_processor.process()
 
@@ -356,8 +382,6 @@ def processVideo(video_path):
         "expression_fractions": expression_fractions,
         "prominent_expression": prominent_expression,
     }
-
-    print(results)
 
     return results
 
@@ -390,5 +414,6 @@ def processVideo():
     return results
 if __name__ == "__main__":
     print("Processing video")
-    processVideo(1)
+    # localProcessVideo('C:\\Users\\szeyu\\Documents\\GitHub\\CalgaryHack2024\\data\\test.mp4')
+    localProcessVideo(1)
     print("Video processed")
