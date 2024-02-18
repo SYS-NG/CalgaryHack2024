@@ -1,9 +1,9 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
 from reportGenerator.reportGenerator import reportGenerator
 from videoProcessing.videoProcessor import videoProcessor
 import os
 import subprocess
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)

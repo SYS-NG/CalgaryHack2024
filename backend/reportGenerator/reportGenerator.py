@@ -9,10 +9,8 @@ from flask_cors import CORS
 sys.path.append('../videoProcessing')
 sys.path.append('../ser')
 
-from videoProcessor import localProcessVideo
-from ser import main as localProcessAudio
-
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+from videoProcessing.videoProcessor import localProcessVideo
+from ser.ser import main as localProcessAudio
 
 # Flask Blueprint
 reportGenerator = Blueprint('reportGenerator', __name__)
