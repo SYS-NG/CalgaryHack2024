@@ -165,7 +165,7 @@ class Report:
         #================================================================================================
         expression_fractions = self.metrics["expression_fractions"]
         connecting_expression = expression_fractions["happy"] + expression_fractions["surprise"] + expression_fractions["sad"]
-        disconnecting_expression = expression_fractions["angry"] + expression_fractions["disgust"] + expression_fractions["fear"]
+        disconnecting_expression = expression_fractions["angry"] + expression_fractions["disgust"] + expression_fractions["fear"] + 0.01
         neutral_expression  = expression_fractions["neutral"]
 
         ratio = (connecting_expression + neutral_expression) / disconnecting_expression
@@ -353,7 +353,6 @@ class Report:
             gaze_fractions = {self.metrics["gaze_fractions"]}, ideal_center_gaze = 0.7,
             expression_fractions = {self.metrics["expression_fractions"]},
             their most prominent expression = {self.metrics["prominent_expression"]}.
-            Their most prominent tone = {self.metrics["tone_probabilities"].index(max(self.metrics["tone_probabilities"]))}.
             Their tone probabilities = {self.metrics["tone_probabilities"]}.
 
             Note the difference between the scores and the ideal scores. Use the difference to generate feedback.

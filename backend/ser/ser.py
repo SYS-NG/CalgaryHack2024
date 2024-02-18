@@ -33,7 +33,6 @@ def preprocess(file_path):
     rawsound = AudioSegment.from_file(file_path, duration = None) 
     normalizedsound = effects.normalize(rawsound, headroom = 5.0) 
     normal_x = np.array(normalizedsound.get_array_of_samples(), dtype = 'float32')
-    normal_x = np.nan_to_num(normal_x)
     xt, index = librosa.effects.trim(normal_x, top_db=30)
 
     try:
@@ -45,7 +44,8 @@ def preprocess(file_path):
     # normal_x = np.array(normalizedsound.get_array_of_samples(), dtype = 'float32') 
     # Noise reduction                  
     final_x = nr.reduce_noise(padded_x, sr=sr)
-        
+    final_x = np.nan_to_num(final_x)
+    final_x = np.where(np.isfinite(final_x), final_x, 0)
         
     f1 = librosa.feature.rms(y=final_x, frame_length=frame_length, hop_length=hop_length, center=True, pad_mode='reflect').T # Energy - Root Mean Square
     f2 = librosa.feature.zero_crossing_rate(y=final_x, frame_length=frame_length, hop_length=hop_length,center=True).T # ZCR
