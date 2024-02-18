@@ -5,7 +5,7 @@ export default function VideoRecorder() {
   const [mediaBlobUrl, setMediaBlobUrl] = useState('');
   const [isRecording, setIsRecording] = useState(false);
 
-  const downloadRecordedVideo = () => {
+  const downloadRecordedVideo = async () => {
     if (mediaBlobUrl) {
       const a = document.createElement('a');
       a.href = mediaBlobUrl;
@@ -14,7 +14,23 @@ export default function VideoRecorder() {
       a.click();
       document.body.removeChild(a);
 
-      
+      // Call backend
+      const response = await fetch('http://127.0.0.1:5000/videoParser', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        console.log('Success:', data);
+        // Handle success
+      } else {
+        console.error('Error:', data.error);
+        // Handle error
+      }
     }
   };
 
