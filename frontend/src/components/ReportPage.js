@@ -3,6 +3,7 @@ import { auth } from '../firebase-config';
 import LoadingIndicator from './LoadingIndicator';
 import { db } from '../firebase-config';
 import { doc, getDoc } from "firebase/firestore"; 
+import { useLocation } from 'react-router-dom';
 
 const protectedStyle = {
   display: 'flex',
@@ -28,8 +29,13 @@ const buttonStyle = {
 const ReportPage = () => {
     const [user, setUser] = useState(null);
     const [data, setData] = useState(null);
+    let location = useLocation();
+    let queryParams = new URLSearchParams(location.search);
+    let context_chosen = queryParams.get('context');
 
     useEffect(() => {
+      console.log("context")
+      console.log(context_chosen)
         const fetchUserData = async () => {
           const user = auth.currentUser;
           if (user) {

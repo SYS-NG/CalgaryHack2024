@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { ReactMediaRecorder } from 'react-media-recorder';
+import ContextChooser from './ContextChooser';
+import { useNavigate } from 'react-router-dom';
 
 export default function VideoRecorder({video_context}) {
   const [mediaBlobUrl, setMediaBlobUrl] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [selectedOption, setSelectedOption] = useState('preliminary evaluation');
+
+  let navigate = useNavigate();
 
   const downloadRecordedVideo = async () => {
     if (mediaBlobUrl) {
@@ -32,7 +37,8 @@ export default function VideoRecorder({video_context}) {
         // Handle error
       }
 
-      // Redirect to 
+      // Redirect to reportpage with context chosen for eval
+      navigate(`/report?context=${selectedOption}`);
     }
   };
 
@@ -107,6 +113,7 @@ export default function VideoRecorder({video_context}) {
           onStop={(blobUrl) => setMediaBlobUrl(blobUrl)}
         />
       </div>
+      <ContextChooser selectedOption={selectedOption} setSelectedOption={setSelectedOption}/>
     </div>
   );
 }
