@@ -29,7 +29,7 @@ const buttonStyle = {
 const ReportPage = () => {
     const [user, setUser] = useState(null);
     const [data, setData] = useState(null);
-    let location = useLocation();
+    let location = useLocation(); 
     let queryParams = new URLSearchParams(location.search);
     let context_chosen = queryParams.get('context');
 
