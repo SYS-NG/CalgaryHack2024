@@ -56,7 +56,7 @@ def preprocess(file_path):
     
     return X_3D
 
-def main():
+def main_method():
     FILE_PATH = './result.wav'
     SAMPLE_RATE = 24414  # Same as RATE in the original script
     CHUNK_DURATION = 1  # Duration of chunks to analyze (in seconds)
@@ -116,7 +116,3 @@ def main():
     weights = process_audio_file(FILE_PATH)
 
     return weights
-
-res = main()
-
-print(res)

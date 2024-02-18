@@ -10,7 +10,7 @@ sys.path.append('../videoProcessing')
 sys.path.append('../ser')
 
 from videoProcessing.videoProcessor import localProcessVideo
-from ser.ser import main as localProcessAudio
+from ser.ser import main_method as localProcessAudio
 
 # Flask Blueprint
 reportGenerator = Blueprint('reportGenerator', __name__)

@@ -19,6 +19,8 @@ export default function VideoRecorder({video_context}) {
       a.click();
       document.body.removeChild(a);
 
+      setTimeout(3000);
+
       // Call backend
       const response = await fetch('http://127.0.0.1:5000/videoParser', {
         method: 'POST',
