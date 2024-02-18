@@ -27,10 +27,10 @@ def video_parser():
     
     try:
         # Convert webm to mp4
-        subprocess.run(['ffmpeg', '-i', webm_file_path, '-c:v', 'copy', '-c:a', 'aac', output_mp4_path], check=True)
+        subprocess.run(['ffmpeg', '-y','-i', webm_file_path, '-c:v', 'copy', '-c:a', 'aac', output_mp4_path], check=True)
         
         # Extract audio to wav
-        subprocess.run(['ffmpeg', '-i', webm_file_path, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', output_wav_path], check=True)
+        subprocess.run(['ffmpeg', '-y', '-i', webm_file_path, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', output_wav_path], check=True)
         return jsonify({"message": "Conversion successful"}), 200
     except subprocess.CalledProcessError as e:
         return jsonify({"error": "A processing error occurred"}), 500

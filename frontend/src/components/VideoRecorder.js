@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ReactMediaRecorder } from 'react-media-recorder';
 
-export default function VideoRecorder() {
+export default function VideoRecorder({video_context}) {
   const [mediaBlobUrl, setMediaBlobUrl] = useState('');
   const [isRecording, setIsRecording] = useState(false);
 
@@ -31,6 +31,8 @@ export default function VideoRecorder() {
         console.error('Error:', data.error);
         // Handle error
       }
+
+      // Redirect to 
     }
   };
 
@@ -41,6 +43,7 @@ export default function VideoRecorder() {
     justifyContent: 'center',
     alignItems: 'center',
     height: '500px', // Set to the desired height
+    width: '600px',
     margin: 'auto', // Center the container on the page
     position: 'relative', // For absolute positioning of child elements
     backgroundColor: 'black',
@@ -61,7 +64,6 @@ export default function VideoRecorder() {
 
   return (
     <div>
-      <h1>Hello StackBlitz!</h1>
       <div style={videoContainerStyle}>
         <ReactMediaRecorder
           video
