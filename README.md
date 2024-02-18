@@ -7,10 +7,12 @@
 VerbalQuest employs machine learning to capture social interaction qualities, including eye movements, blinking, facial emotion, and speech patterns. Users receive ratings based on attributes such as attentiveness, confidence, empathy, sociability, and expressiveness. The platform gamifies the experience with a scoring system, allowing users to track their improvement over time. GPT provides customized feedback to aid users in their growth journey. Sign up to maintain progress and consistently evolve your social skills!
 
 ## How we built it
-- Frontend: React
-- Authentication: Firebase/Firestore
-- Speech Emotion Models: Neural Networks/Tensorflow
-- Language Models: GPT API
+- **Frontend:** React
+- **Backend:** Flask
+- **Authentication:** Firebase/Firestore
+- **Speech Emotion Models:** Neural Networks/Tensorflow
+- **Computer Vision:** OpenCV
+- **Language Models:** OpenAI
 
 ## Challenges we ran into
 - Long training times for machine learning models
