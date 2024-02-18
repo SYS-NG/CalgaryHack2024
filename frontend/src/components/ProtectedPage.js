@@ -5,6 +5,7 @@ import { auth } from '../firebase-config';
 import LoadingIndicator from './LoadingIndicator';
 import { db } from '../firebase-config';
 import { doc, getDoc } from "firebase/firestore"; 
+import VideoRecorder from './VideoRecorder';
 
 const protectedStyle = {
   display: 'flex',
@@ -34,6 +35,7 @@ const ProtectedPage = () => {
     useEffect(() => {
         const fetchUserData = async () => {
           const user = auth.currentUser;
+          console.log(user)
           if (user) {
             const userRef = doc(db, "users", user.uid); // Reference to the user's document in Firestore
             const userSnap = await getDoc(userRef);
@@ -64,6 +66,7 @@ const ProtectedPage = () => {
 
     return (
     <div style={protectedStyle}>
+        <VideoRecorder/>
         <h1>Protected Page</h1>
         <p>Hi {user.name}</p>
         <p>Congratulations! You've accessed the protected content.</p>
