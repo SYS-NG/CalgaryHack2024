@@ -479,7 +479,7 @@ def generateReport():
     report = reportTypeMap[reportType](metrics)
     report.getScores()
     report.generate()
-
+    report.scores["emotion_score"] = metrics["tone_probabilities"].tolist()
     return jsonify(report.scores)
 
 if __name__ == "__main__":
