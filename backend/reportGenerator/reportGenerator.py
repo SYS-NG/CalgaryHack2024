@@ -2,7 +2,10 @@ import os
 import json
 import math
 import openai
-from flask import Flask, request 
+from flask import Blueprint, request, jsonify
+
+# Flask Blueprint
+reportGenerator = Blueprint('reportGenerator', __name__)
 
 openai.api_key = os.environ.get('OPENAI_API_KEY')
 client = openai.OpenAI()
@@ -405,6 +408,17 @@ def generateJsonReport(metrics: dict, reportType: str):
 
     return json.dumps(report.scores, indent=4, sort_keys=True)
 
+@reportGenerator.route('/generateReport', methods=['POST'])
+def generateReport():
+
+    metrics    = request.json['metrics']
+    reportType = request.json['reportType']
+
+    report = reportTypeMap[reportType](metrics)
+    report.getScores()
+    report.generate()
+
+    return jsonify(report.scores)
 
 if __name__ == "__main__":
     metrics = {

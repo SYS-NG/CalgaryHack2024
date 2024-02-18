@@ -7,12 +7,15 @@ from PIL import Image
 from deepface import DeepFace 
 from scipy.signal import find_peaks
 from collections import Counter
+from flask import Blueprint, request, jsonify
 
 VERBOSE = False
 
 CENTER = "C"
 LEFT   = "L"
 RIGHT  = "R"
+
+videoProcessor = Blueprint('VideoProcessor', __name__)
 
 class VideoProcessor():
     def __init__(self, video_path):
@@ -334,11 +337,6 @@ def processVideo(video_path):
     vid_processor     = VideoProcessor(video_path)
     extracted_metrics = vid_processor.process()
 
-    blinks_per_minute    = 0
-    left_gaze_fraction   = 0
-    right_gaze_fraction  = 0
-    center_gaze_fraction = 0 
-
     # Process the extracted metrics: eye_width_height_ratios
     blinks_per_minute =  process_eye_width_height_ratios(extracted_metrics["eye_width_height_ratios"], extracted_metrics["timeframe"])
 
@@ -363,6 +361,33 @@ def processVideo(video_path):
 
     return results
 
+@videoProcessor.route('/processVideo', methods=['POST'])
+def processVideo():
+    video_path = request.json['video_path']
+    vid_processor     = VideoProcessor(video_path)
+    extracted_metrics = vid_processor.process()
+
+    # Process the extracted metrics: eye_width_height_ratios
+    blinks_per_minute =  process_eye_width_height_ratios(extracted_metrics["eye_width_height_ratios"], extracted_metrics["timeframe"])
+
+    # Process the extracted metrics: gaze_directions
+    gaze_fractions = process_gaze_directions(extracted_metrics["gaze_directions"])
+    prominent_gaze = max(gaze_fractions, key=gaze_fractions.get)
+
+    # Process the extracted metrics: expressions
+    expression_fractions = process_expressions(extracted_metrics["expressions"])
+    prominent_expression = max(expression_fractions, key=expression_fractions.get)
+
+    # return dictionary of processed metrics
+    results = {
+        "blinks_per_minute": blinks_per_minute,
+        "gaze_fractions": gaze_fractions,
+        "prominent_gaze": prominent_gaze,
+        "expression_fractions": expression_fractions,
+        "prominent_expression": prominent_expression,
+    }
+
+    return results
 if __name__ == "__main__":
     print("Processing video")
     processVideo(1)
